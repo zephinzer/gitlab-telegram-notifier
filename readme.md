@@ -53,7 +53,9 @@ The following endpoints can be called to trigger messages:
 Universal POST parameters:
 
 `commid_id` : ID of the commit
+
 `victim` : who should be named
+
 `environment` : the environment where the build succeeded
 
 Universal POST response: `'ok'`
@@ -76,5 +78,7 @@ Universal GET parameters:
 Universal GET response: `{ true, false, null }`
 
 `true` is returned when status is happy
+
 `false` is returned when status is sad
+
 `null` is returned when status could not be found
