@@ -11,8 +11,10 @@ function getInstance() {
 }
 
 function send(message, _options) {
-  const options = _options || { parse_mode: 'Markdown' };
-  bot.sendMessage((options ? (options.chatId || defaults.chatId) : defaults.chatId), message, options);
+  const options = _options || {};
+  Object.assign(options, { parse_mode: 'Markdown' });
+  const chatId = (options ? (options.chatId || defaults.chatId) : defaults.chatId);
+  (chatId) && bot.sendMessage(chatId, message, options);
 }
 
 module.exports = {

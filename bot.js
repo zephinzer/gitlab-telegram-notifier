@@ -38,11 +38,11 @@ CWD  : ${process.cwd()}
 \`\`\``;
 }
 
-function getChatInfo() {
+function getChatInfo(chatId) {
   return `\
 *Chat Info*
 \`\`\`
-Chat ID   : ${defaults.chatId}
+Chat ID   : ${chatId || defaults.chatId}
 \`\`\``;
 }
 
@@ -87,25 +87,30 @@ botInstance.onText(/\/about/, (msg, match) => {
 });
 
 botInstance.onText(/\/help/, (msg, match) => {
-  bot.send(getAvailableCommands());
+  const chatId = msg.chat.id;
+  bot.send(getAvailableCommands(), { chatId });
 });
 
 botInstance.onText(/\/info/, (msg, match) => {
-  bot.send(getChatInfo());
+  const chatId = msg.chat.id;
+  bot.send(getChatInfo(chatId), { chatId });
 });
 
 botInstance.onText(/\/system/, (msg, match) => {
-  bot.send(getSystemInfo());
+  const chatId = msg.chat.id;
+  bot.send(getSystemInfo(), { chatId });
 });
 
 botInstance.onText(/\/status/, (msg, match) => {
+  const chatId = msg.chat.id;
   const {text} = msg;
   if(text.split(' ').length === 1) {
-    bot.send('Please specify an environment after the /status command!');
+    bot.send('Please specify an environment after the /status command!', { chatId });
   }
 });
 
 botInstance.onText(/\/status (.+)/, (msg, match) => {
+  const chatId = msg.chat.id;
   const environment = match[1];
   const testStatus = test.getEnvironmentTestStatus(environment);
   const buildStatus = build.getEnvironmentBuildStatus(environment);
@@ -130,7 +135,7 @@ botInstance.onText(/\/status (.+)/, (msg, match) => {
 \`${environment}\`
 ${testOutput} test
 ${buildOutput} build
-${deployOutput} deploy`);
+${deployOutput} deploy`, { chatId });
 });
 
 server.use(build.server);
@@ -149,11 +154,6 @@ ${getSystemInfo()}
 ${getProcessInfo()}
 ${getChatInfo()}
 ${getAvailableCommands()}`);
-});
-
-process.on('SIGKILL', (code) => {
-  bot.send('🔥🔥🔥 GitLab Notifier is DYING 🔥🔥🔥');
-  process.exit(code);
 });
 
 process.on('SIGINT', (code) => {
