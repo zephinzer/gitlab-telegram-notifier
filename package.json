@@ -1,0 +1,23 @@
+{
+  "name": "gitlab-telegram-notifier",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "bot": "node bot.js",
+    "start": "nf start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "moment": "^2.18.1",
+    "node-telegram-bot-api": "^0.27.1",
+    "superagent": "^3.5.2"
+  },
+  "devDependencies": {
+    "foreman": "^2.0.0"
+  }
+}
