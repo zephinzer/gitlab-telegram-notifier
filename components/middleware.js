@@ -49,13 +49,13 @@ function setEnvironmentStatus(project, env, stage, success) {
   fs.writeFileSync(path.resolve(`./data/${project}/${env}/${stage}`), success ? '1' : '0');
 }
 
-function sendNotification(project, environment, stage, commitId, victim, buildUrl, pass) {
+function sendNotification(project, environment, stage, commitId, commitMessage, victim, buildUrl, pass) {
   const prefix = pass ? '✅' : '❌';
   const status = pass ? 'PASSED' : 'FAILED';
   bot.send(`\
 ${prefix} \`${project}\`:\`${environment}\`:\`${stage.toUpperCase()}\` *${status}*
 
-Commit \`${commitId}\` by \`<${victim}>\`
+*\`${victim}\`* \`${commitMessage} [${commitId}]\`
 
 🖇 \[${buildUrl}\](${buildUrl})`);
 }
@@ -69,9 +69,9 @@ server.get('/:stage/status', (req, res, next) => {
 server.post('/:stage/succeeded', (req, res, next) => {
   try {
     const {stage} = req.params;
-    const { buildUrl, commitId, environment, project, triggerMessage, victim } = utility.parseUniversalPostArguments(req.body);
+    const { buildUrl, commitMessage, commitId, environment, project, triggerMessage, victim } = utility.parseUniversalPostArguments(req.body);
     setEnvironmentStatus(project, environment, stage, true);
-    (triggerMessage) && sendNotification(project, environment, stage, commitId, victim, buildUrl, true);
+    (triggerMessage) && sendNotification(project, environment, stage, commitId, commitMessage, victim, buildUrl, true);
     res.jsonp('ok');
   } catch(ex) {
     res.json(ex);
@@ -81,9 +81,9 @@ server.post('/:stage/succeeded', (req, res, next) => {
 server.post('/:stage/failed', (req, res, next) => {
   try {
     const {stage} = req.params;
-    const { buildUrl, commitId, environment, project, triggerMessage, victim } = utility.parseUniversalPostArguments(req.body);
+    const { buildUrl, commitMessage, commitId, environment, project, triggerMessage, victim } = utility.parseUniversalPostArguments(req.body);
     setEnvironmentStatus(project, environment, stage, false);
-    (triggerMessage) && sendNotification(project, environment, stage, commitId, victim, buildUrl, false);
+    (triggerMessage) && sendNotification(project, environment, stage, commitId, commitMessage, victim, buildUrl, false);
     res.json('ok');
   } catch(ex) {
     res.json(ex);

@@ -6,6 +6,7 @@ module.exports = {
     const project = requestBody.project || defaults.project;
     const environment = requestBody.environment || defaults.environment;
     const victim = requestBody.victim || defaults.victim;
+    const commitMessage = requestBody.commit_message || defaults.commitMessage;
     const commitId = requestBody.commit_id || defaults.commitId;
     const triggerMessage = requestBody.message ? 
       (requestBody.message !== '0') :
@@ -15,6 +16,7 @@ module.exports = {
       project,
       environment,
       victim,
+      commitMessage,
       commitId,
       triggerMessage
     };
