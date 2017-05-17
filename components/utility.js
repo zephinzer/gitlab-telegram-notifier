@@ -1,0 +1,26 @@
+const defaults = require('./defaults');
+
+module.exports = {
+  parseUniversalPostArguments: function(requestBody) {
+    const buildUrl = requestBody.build_url || defaults.buildUrl;
+    const project = requestBody.project || defaults.project;
+    const environment = requestBody.environment || defaults.environment;
+    const victim = requestBody.victim || defaults.victim;
+    const commitId = requestBody.commit_id || defaults.commitId;
+    const triggerMessage = requestBody.message ? 
+      (requestBody.message !== '0') :
+      defaults.triggerMessage;
+    return {
+      buildUrl,
+      project,
+      environment,
+      victim,
+      commitId,
+      triggerMessage
+    };
+  },
+  parseUniversalGetArguments: function(requestQuery) {
+    const environment = requestQuery.environment || defaults.environment;
+    const project = requestQuery.project || defaults.project;
+  }
+};

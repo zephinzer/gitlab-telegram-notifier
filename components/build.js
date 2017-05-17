@@ -5,10 +5,11 @@ const server = express.Router();
 
 const bot = require('./bot');
 const defaults = require('./defaults');
+const utility = require('./utility');
 
-function getEnvironmentBuildStatus(env) {
+function getEnvironmentBuildStatus(project, env) {
   try {
-    const requestedEnv = fs.readFileSync(path.resolve(`./data/build/${env}`)).toString();
+    const requestedEnv = fs.readFileSync(path.resolve(`./data/${project}/build/${env}`)).toString();
     return (requestedEnv === '1');
   } catch(ex) {
     console.log(ex);
@@ -16,33 +17,32 @@ function getEnvironmentBuildStatus(env) {
   }
 }
 
-function setEnvironmentBuildStatus(env, success) {
-  fs.writeFileSync(path.resolve(`./data/build/${env}`), success ? '1' : '0');
+function setEnvironmentBuildStatus(project,env, success) {
+  try { fs.mkdirSync(path.resolve(`./data/${project}`)); } catch(ex) { }
+  try { fs.mkdirSync(path.resolve(`./data/${project}/test`)); } catch(ex) { }
+  fs.writeFileSync(path.resolve(`./data/${project}/build/${env}`), success ? '1' : '0');
 }
 
 server.get('/build/status', (req, res, next) => {
-  const {query} = req;
-  const environment = query.environment;
-  res.json(getEnvironmentBuildStatus(environment));
+  const { environment, project } = utility.parseUniversalGetArguments(req.query);
+  res.json(getEnvironmentBuildStatus(project, environment));
 });
 
 server.post('/build/succeeded', (req, res, next) => {
-  const {body} = req;
-  const environment = body.environment || defaults.environment;
-  const victim = body.victim || defaults.victim;
-  const commitId = body.commit_id || defaults.commitId;
-  setEnvironmentTestStatus(environment, true);
-  bot.send(`✅ BUILD in \`${environment}\` has *PASSED* (🙏🏽 ${victim}) : COMMIT ID: \`${commitId}\` ✅`);
+  const { buildUrl, commitId, environment, project, triggerMessage, victim } = utility.parseUniversalPostArguments(req.body);
+  setEnvironmentBuildStatus(project, environment, true);
+  if(triggerMessage) {
+    bot.send(`✅ BUILD in \`${environment}\` for \`${project}\` has *PASSED* (🙏🏽 \`${victim}\`) : COMMIT ID: \`${commitId}\` ✅`);
+  }
   res.send('ok');
 });
 
 server.post('/build/failed', (req, res, next) => {
-  const {body} = req;
-  const environment = body.environment || defaults.environment;
-  const victim = body.victim || defaults.victim;
-  const commitId = body.commit_id || defaults.commitId;
-  setEnvironmentTestStatus(environment, true);
-  bot.send(`❌ BUILD in \`${environment}\` has *FAILED* (👉🏽 ${victim}) : COMMIT ID: \`${commitId}\` ❌`);
+  const { buildUrl, commitId, environment, project, triggerMessage, victim } = utility.parseUniversalPostArguments(req.body);
+  setEnvironmentBuildStatus(project, environment, false);
+  if(triggerMessage) {
+    bot.send(`❌ BUILD of \`${environment}\` for \`${project}\` has *FAILED* (👉🏽 \`${victim}\`) : COMMIT ID : \`${commitId}\` \n\n Link: \[${buildUrl}\](${buildUrl}) ❌`);
+  }
   res.send('ok');
 });
 
