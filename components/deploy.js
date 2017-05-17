@@ -17,6 +17,8 @@ function getEnvironmentDeployStatus(project, env) {
 }
 
 function setEnvironmentDeployStatus(project, env, success) {
+  try { fs.mkdirSync(path.resolve(`./data/${project}`)); } catch(ex) { }
+  try { fs.mkdirSync(path.resolve(`./data/${project}/test`)); } catch(ex) { }
   fs.writeFileSync(path.resolve(`./data/${project}/deploy/${env}`), success ? '1' : '0');
 }
 
