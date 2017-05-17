@@ -24,8 +24,9 @@ function setEnvironmentDeployStatus(project, env, success) {
 
 server.get('/deploy/status', (req, res, next) => {
   const {query} = req;
-  const environment = query.environment;
-  res.json(getEnvironmentDeployStatus(environment));
+  const environment = query.environment || defaults.environment;
+  const project = body.project || defaults.project;
+  res.json(getEnvironmentDeployStatus(project, environment));
 });
 
 server.post('/deploy/succeeded', (req, res, next) => {

@@ -24,8 +24,9 @@ function setEnvironmentTestStatus(project, env, success) {
 
 server.get('/test/status', (req, res, next) => {
   const {query} = req;
-  const environment = query.environment;
-  res.json(getEnvironmentTestStatus(environment));
+  const environment = query.environment || defaults.environment;
+  const project = body.project || defaults.project;
+  res.json(getEnvironmentTestStatus(project, environment));
 });
 
 server.post('/test/succeeded', (req, res, next) => {

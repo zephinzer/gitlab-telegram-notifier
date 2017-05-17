@@ -24,8 +24,9 @@ function setEnvironmentBuildStatus(project,env, success) {
 
 server.get('/build/status', (req, res, next) => {
   const {query} = req;
-  const environment = query.environment;
-  res.json(getEnvironmentBuildStatus(environment));
+  const environment = query.environment || defaults.environment;
+  const project = body.project || defaults.project;
+  res.json(getEnvironmentBuildStatus(project, environment));
 });
 
 server.post('/build/succeeded', (req, res, next) => {
