@@ -22,5 +22,8 @@ module.exports = {
   parseUniversalGetArguments: function(requestQuery) {
     const environment = requestQuery.environment || defaults.environment;
     const project = requestQuery.project || defaults.project;
+    return {
+      environment, project
+    };
   }
 };
