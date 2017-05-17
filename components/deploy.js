@@ -5,6 +5,7 @@ const server = express.Router();
 
 const bot = require('./bot');
 const defaults = require('./defaults');
+const utility = require('./utility');
 
 function getEnvironmentDeployStatus(project, env) {
   try {
@@ -18,41 +19,29 @@ function getEnvironmentDeployStatus(project, env) {
 
 function setEnvironmentDeployStatus(project, env, success) {
   try { fs.mkdirSync(path.resolve(`./data/${project}`)); } catch(ex) { }
-  try { fs.mkdirSync(path.resolve(`./data/${project}/test`)); } catch(ex) { }
+  try { fs.mkdirSync(path.resolve(`./data/${project}/deploy`)); } catch(ex) { }
   fs.writeFileSync(path.resolve(`./data/${project}/deploy/${env}`), success ? '1' : '0');
 }
 
 server.get('/deploy/status', (req, res, next) => {
-  const {query} = req;
-  const environment = query.environment || defaults.environment;
-  const project = body.project || defaults.project;
+  const { environment, project } = utility.parseUniversalGetArguments(req.query);
   res.json(getEnvironmentDeployStatus(project, environment));
 });
 
 server.post('/deploy/succeeded', (req, res, next) => {
-  const {body} = req;
-  const project = body.project || defaults.project;
-  const environment = body.environment || defaults.environment;
-  const victim = body.victim || defaults.victim;
-  const commitId = body.commit_id || defaults.commitId;
-  const triggerMessage = true && (body.message !== '0');
+  const { buildUrl, commitId, environment, project, triggerMessage, victim } = utility.parseUniversalPostArguments(req.body);
   setEnvironmentDeployStatus(project, environment, true);
   if(triggerMessage) {
-    bot.send(`✅ DEPLOYMENT of \`${environment}\` for \`${project}\` has *PASSED* (🙏🏽 ${victim}) : COMMIT ID : \`${commitId}\` ✅`);
+    bot.send(`✅ DEPLOYMENT of \`${environment}\` for \`${project}\` has *PASSED* (🙏🏽 \`${victim}\`) : COMMIT ID : \`${commitId}\` ✅`);
   }
   res.send('ok');
 });
 
 server.post('/deploy/failed', (req, res, next) => {
-  const {body} = req;
-  const project = body.project || defaults.project;
-  const environment = body.environment || defaults.environment;
-  const victim = body.victim || defaults.victim;
-  const commitId = body.commit_id || defaults.commitId;
-  const triggerMessage = true && (body.message !== '0');
+  const { buildUrl, commitId, environment, project, triggerMessage, victim } = utility.parseUniversalPostArguments(req.body);
   setEnvironmentDeployStatus(project, environment, false);
   if(triggerMessage) {
-    bot.send(`❌ DEPLOYMENT of \`${environment}\` for \`${project}\` has *FAILED* (👉🏽 ${victim}) : COMMIT ID : \`${commitId}\` ❌`);
+    bot.send(`❌ DEPLOYMENT of \`${environment}\` for \`${project}\` has *FAILED* (👉🏽 \`${victim}\`) : COMMIT ID : \`${commitId}\` \n\n Link: \[${buildUrl}\](${buildUrl}) ❌`);
   }
   res.send('ok');
 });

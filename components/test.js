@@ -5,6 +5,7 @@ const server = express.Router();
 
 const bot = require('./bot');
 const defaults = require('./defaults');
+const utility = require('./utility');
 
 function getEnvironmentTestStatus(project, env) {
   try {
@@ -23,19 +24,12 @@ function setEnvironmentTestStatus(project, env, success) {
 }
 
 server.get('/test/status', (req, res, next) => {
-  const {query} = req;
-  const environment = query.environment || defaults.environment;
-  const project = body.project || defaults.project;
+  const { environment, project } = utility.parseUniversalGetArguments(req.query);
   res.json(getEnvironmentTestStatus(project, environment));
 });
 
 server.post('/test/succeeded', (req, res, next) => {
-  const {body} = req;
-  const project = body.project || defaults.project;
-  const environment = body.environment || defaults.environment;
-  const victim = body.victim || defaults.victim;
-  const commitId = body.commit_id || defaults.commitId;
-  const triggerMessage = true && (body.message !== '0');
+  const { buildUrl, commitId, environment, project, triggerMessage, victim } = utility.parseUniversalPostArguments(req.body);
   setEnvironmentTestStatus(project, environment, true);
   if(triggerMessage) {
     bot.send(`✅ TESTS in \`${environment}\` for \`${project}\` have *PASSED* (🙏🏽 \`${victim}\`) : COMMIT ID : \`${commitId}\` ✅`);
@@ -44,15 +38,10 @@ server.post('/test/succeeded', (req, res, next) => {
 });
 
 server.post('/test/failed', (req, res, next) => {
-  const {body} = req;
-  const project = body.project || defaults.project;
-  const environment = body.environment || defaults.environment;
-  const victim = body.victim || defaults.victim;
-  const commitId = body.commit_id || defaults.commitId;
-  const triggerMessage = true && (body.message !== '0');
+  const { buildUrl, commitId, environment, project, triggerMessage, victim } = utility.parseUniversalPostArguments(req.body);
   setEnvironmentTestStatus(project, environment, false);
   if(triggerMessage) {
-    bot.send(`❌ TESTS in \`${environment}\` for \`${project}\` have *FAILED* (👉🏽 \`${victim}\`) : COMMIT ID : \`${commitId}\` ❌`);
+    bot.send(`❌ TESTS in \`${environment}\` for \`${project}\` have *FAILED* (👉🏽 \`${victim}\`) : COMMIT ID : \`${commitId}\` \n\n Link: \[${buildUrl}\](${buildUrl}) ❌`);
   }
   res.send('ok');
 });

@@ -143,7 +143,7 @@ server.use(test.server);
 server.use(deploy.server);
 server.use('/', (req, res, next) => {
   res.status(200);
-  res.bot.send('lol, not\'ng \'ere');
+  res.send('lol, not\'ng \'ere');
 });
 
 http.createServer(server).listen(process.env.PORT_SERVER, err => {

@@ -52,20 +52,21 @@ The following endpoints can be called to trigger messages:
 
 Universal POST parameters:
 
-`project` : Project name
+`build_url` : Build URL to display in message
 
 `commid_id` : ID of the commit
-
-`victim` : who should be named
 
 `environment` : the environment where the build succeeded
 
 `message` : (optional) if this is set to 0, no message is triggered
 
+`project` : Project name
+
+`victim` : who should be named
+
 Universal POST success response: `'ok'`
 
 Universal POST fail response: `Object:Error`
-
 
 ### GETS
 Use these to get states.
