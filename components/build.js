@@ -19,7 +19,7 @@ function getEnvironmentBuildStatus(project, env) {
 
 function setEnvironmentBuildStatus(project,env, success) {
   try { fs.mkdirSync(path.resolve(`./data/${project}`)); } catch(ex) { }
-  try { fs.mkdirSync(path.resolve(`./data/${project}/test`)); } catch(ex) { }
+  try { fs.mkdirSync(path.resolve(`./data/${project}/build`)); } catch(ex) { }
   fs.writeFileSync(path.resolve(`./data/${project}/build/${env}`), success ? '1' : '0');
 }
 
