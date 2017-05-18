@@ -8,9 +8,7 @@ const express = require('express');
 
 const bot = require('./components/bot');
 const defaults = require('./components/defaults');
-const build = require('./components/build');
-const deploy = require('./components/deploy');
-const test = require('./components/test');
+const middleware = require('./components/middleware');
 
 const options = {
   polling: true
@@ -55,8 +53,8 @@ function getAvailableCommands() {
 /info
 : lists information about this chat
 
-/status {%_ENVIRONMENT_%}
-: gets the status of the specified environment
+/status {%_ENVIRONMENT_%} {%_PROJECT_%}
+: gets the status of the specified environment and project
   : ✅ indicates pass
   : ❌ indicates fail
   : ⁇ indicates unknown
@@ -111,36 +109,32 @@ botInstance.onText(/\/status/, (msg, match) => {
 
 botInstance.onText(/\/status (.+)/, (msg, match) => {
   const chatId = msg.chat.id;
-  const environment = match[1];
-  const testStatus = test.getEnvironmentTestStatus(environment);
-  const buildStatus = build.getEnvironmentBuildStatus(environment);
-  const deployStatus = deploy.getEnvironmentDeployStatus(environment);
-  const testOutput = (() => {switch(testStatus) {
-    case true: return '✅';
-    case false: return '❌';
-    case null: return '⁇';
-  }})();
-  const buildOutput = (() => {switch(buildStatus) {
-    case true: return '✅';
-    case false: return '❌';
-    case null: return '⁇';
-  }})();
-  const deployOutput = (() => {switch(deployStatus) {
-    case true: return '✅';
-    case false: return '❌';
-    case null: return '⁇';
-  }})();
-
-  bot.send(`\
-\`${environment}\`
-${testOutput} test
-${buildOutput} build
-${deployOutput} deploy`, { chatId });
+  const input = match[1].split(' ');
+  let environmentStageListing;
+  if(input.length === 1) {
+    const project = input[0];
+    environmentStageListing = middleware.getEnvironmentStatus(project);
+  } else if(input.length > 1) {
+    const project = input[0];
+    const environment = input[1];
+    environmentStageListing = middleware.getEnvironmentStatus(project, environment);
+  } else {
+    bot.send('Please specify an environment after the /status command!', { chatId });
+  }
+  let message = '';
+  environmentStageListing.environments.forEach(environment => {
+    message += `__*${environment}*__\n`;
+    for(const stage in environmentStageListing.stages[environment]) {
+      const status = environmentStageListing.stages[environment][stage];
+      const prefix = status === true ? '✅' : (status === null ? '-' : '❌');
+      message += `${prefix} \`${stage}\`\n`
+    }
+    message += '\n';
+  });
+  bot.send(message, { chatId });
 });
 
-server.use(build.server);
-server.use(test.server);
-server.use(deploy.server);
+server.use(middleware.server);
 server.use('/', (req, res, next) => {
   res.status(200);
   res.send('lol, not\'ng \'ere');
