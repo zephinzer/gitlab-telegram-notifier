@@ -50,16 +50,14 @@ function setEnvironmentStatus(project, env, stage, success) {
 }
 
 function sendNotification(project, environment, stage, commitId, victim, buildUrl, pass) {
-  const prefix = pass ? '✅✅' : '❌❌';
+  const prefix = pass ? '✅' : '❌';
   const status = pass ? 'PASSED' : 'FAILED';
   bot.send(`\
-${prefix} \`${stage.toUpperCase()}\` *${status}* for:
-PROJECT\`<${project}>\`
-BRANCH\`<${environment}>\`
-COMMIT\`<${commitId}>\`
-MADE BY\`<${victim}>\`
+${prefix} \`${project}\`:\`${environment}\`:\`${stage.toUpperCase()}\` *${status}*
 
-VIEW BUILD: \[${buildUrl}\](${buildUrl})`);
+Commit \`${commitId}\` by \`<${victim}>\`
+
+🖇 \[${buildUrl}\](${buildUrl})`);
 }
 
 server.get('/:stage/status', (req, res, next) => {
