@@ -1,6 +1,6 @@
 # Usage
 
-Clone repostiory and install dependencies with `yarn install`. Or `npm install`.
+Clone repostiory and install dependencies with `yarn install`.
 
 Create a `.env` file with the following values in the project root:
 
