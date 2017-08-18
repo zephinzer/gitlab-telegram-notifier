@@ -38,19 +38,11 @@ Use these to set states.
 
 The following endpoints can be called to trigger messages:
 
-`POST /build/succeeded`
+`POST /<STAGE_NAME>/succeeded`
 
-`POST /build/failed`
+`POST /<STAGE_NAME>/failed`
 
-`POST /deploy/succeeded`
-
-`POST /deploy/failed`
-
-`POST /test/succeeded`
-
-`POST /test/failed`
-
-Universal POST parameters:
+#### Body Parameters
 
 `build_url` : Build URL to display in message
 
@@ -64,22 +56,20 @@ Universal POST parameters:
 
 `victim` : who should be named
 
-Universal POST success response: `'ok'`
+#### Success Response
+`'ok'`
 
-Universal POST fail response: `Object:Error`
+#### Failure Response
+`Object:Error`
 
 ### GETS
 Use these to get states.
 
 The following endpoints can be called to get JSON responses:
 
-`GET /build/status`
+`GET /<STAGE_NAME>/status`
 
-`GET /deploy/status`
-
-`GET /test/status`
-
-Universal GET parameters:
+#### Query Parameters
 
 `project` : project to check
 
@@ -92,3 +82,10 @@ Universal GET response: `{ true, false, null }`
 `false` is returned when status is sad
 
 `null` is returned when status could not be found
+
+# Change Log
+## 18 Aug 2017
+
+- Refactored code
+- Ability to accomodate any stage name implemented
+- Bump to version 1.2.0
